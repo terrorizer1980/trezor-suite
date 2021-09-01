@@ -12,37 +12,49 @@ const init = ({ mainWindow }: Dependencies) => {
 
     const sendProtocolInfo = (protocol: string) => {
         if (isValidProtocol(protocol, protocols)) {
+            logger.debug('custom-protocols', `Protocol send to browser window. ${protocol}`);
             mainWindow.webContents.send('protocol/open', protocol);
         }
     };
 
-    // Initial protocol send (if the app is launched via custom protocol)
+    // App is launched via custom protocol (Linux, Windows)
     if (process.argv[1]) {
-        sendProtocolInfo(process.argv[1]);
+        logger.debug('custom-protocols', 'App launched via custom protocol (Linux, Windows).');
+        mainWindow.webContents.on('did-finish-load', () => {
+            sendProtocolInfo(process.argv[1]);
+        });
     }
 
-    app.on('second-instance', (_, argv) => {
-        logger.info('custom-protocols', 'Second instance opened');
+    // App is launched via custom protocol (macOS)
+    app.on('will-finish-launching', () => {
+        logger.debug(
+            'custom-protocols',
+            'App launched via custom protocol (macOS). Stage: will-finish-launching',
+        );
 
-        // If a custom protocol is being clicked on while the app is running
-        if (argv[1]) {
-            sendProtocolInfo(argv[1]);
-        }
+        app.on('open-url', (event, url) => {
+            logger.debug(
+                'custom-protocols',
+                'App launched via custom protocol (macOS). Stage: open-url',
+            );
 
-        if (mainWindow) {
-            if (mainWindow.isMinimized()) {
-                mainWindow.restore();
-            }
+            event.preventDefault();
+            mainWindow.webContents.on('did-finish-load', () => {
+                logger.debug(
+                    'custom-protocols',
+                    'App launched via custom protocol (macOS). Stage: did-finish-load',
+                );
 
-            mainWindow.focus();
-        }
+                sendProtocolInfo(url);
+            });
+        });
     });
 
-    // Protocol handler for macOS
+    // App is running and custom protocol was activated (macOS)
     app.on('open-url', (event, url) => {
-        logger.info('custom-protocols', `Handle open protocol url ${url}`);
-        event.preventDefault();
+        logger.debug('custom-protocols', 'Handle custom protocol (macOS). Stage: open-url');
 
+        event.preventDefault();
         if (mainWindow.isMinimized()) {
             mainWindow.restore();
         } else {
