@@ -28,7 +28,7 @@ export const MODULES = [
 ];
 
 // Modules only used in prod mode
-export const MODULES_PROD = ['csp', 'file-protocol'];
+export const MODULES_PROD = ['csp', 'file-protocol', 'dev-tools'];
 
 // Modules only used in dev mode
 export const MODULES_DEV = ['dev-tools'];

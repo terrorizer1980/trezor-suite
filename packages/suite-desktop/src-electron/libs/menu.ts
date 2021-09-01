@@ -63,11 +63,6 @@ const mainMenuTemplate: MenuItem[] = [
     },
 ];
 
-if (!isDev) {
-    // remove toggleDevTools from "View"
-    mainMenuTemplate[2].submenu.splice(2, 1);
-}
-
 if (isMac) {
     // Extend "Edit"
     mainMenuTemplate[1].submenu.push(
