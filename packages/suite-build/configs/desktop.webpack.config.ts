@@ -11,7 +11,7 @@ import ShellExecPlugin from '../plugins/shell-exec-plugin';
 
 const baseDir = getPathForProject('desktop');
 const config: webpack.Configuration = {
-    target: 'electron14.0-renderer',
+    target: 'web',
     entry: [path.join(baseDir, 'src', 'index.tsx')],
     output: {
         path: path.join(baseDir, 'build'),
